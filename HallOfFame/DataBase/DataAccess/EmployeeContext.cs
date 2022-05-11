@@ -7,7 +7,14 @@
     {
         #region Properies
 
+        /// <summary>
+        /// Persons table
+        /// </summary>
         public DbSet<Person> Persons { get; set; }
+
+        /// <summary>
+        /// Skills table
+        /// </summary>
         public DbSet<Skill> Skills { get; set; }
 
         #endregion Properies

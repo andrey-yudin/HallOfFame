@@ -60,7 +60,7 @@
         [HttpPut("api/v1/person/{id}")]
         public async Task<ActionResult> UpdatePerson(long id, PersonDto person)
         {
-            if (!await _employeeService.TryUpdatePerson(person))
+            if (!await _employeeService.TryUpdatePerson(id, person))
             {
                 return BadRequest();
             }

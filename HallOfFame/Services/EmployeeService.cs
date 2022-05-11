@@ -2,8 +2,10 @@
 {
     using HallOfFame.DataBase.Repositories;
     using HallOfFame.DTO;
+    using HallOfFame.Models;
 
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     public class EmployeeService : IEmployeeService
@@ -25,29 +27,83 @@
 
         #region Methods
 
-        public Task<ICollection<PersonDto>> GetAll()
+        /// <inheritdoc />
+        public async Task<ICollection<PersonDto>> GetAll()
         {
-            throw new NotImplementedException();
+            var persons = await _employeeRepository.GetPersons();
+
+            return persons.Select(person => GetExternalPerson(person))
+                          .ToList();
         }
 
-        public Task<ICollection<PersonDto>> GetPerson(long id)
+        /// <inheritdoc />
+        public async Task<PersonDto> GetPerson(long id)
         {
-            throw new NotImplementedException();
+            var (personExists, person) = await _employeeRepository.GetPerson(id);
+
+            return personExists ? GetExternalPerson(person) : null;
         }
 
-        public Task<bool> TryCreatePerson(PersonDto person)
+        /// <inheritdoc />
+        public async Task<bool> TryCreatePerson(PersonDto person)
         {
-            throw new NotImplementedException();
+            if (person == null)
+            {
+                return false;
+            }
+
+            return await _employeeRepository.TryCreatePerson(GetInternalPerson(person));
         }
 
-        public Task<bool> TryUpdatePerson(PersonDto person)
+        /// <inheritdoc />
+        public async Task<bool> TryUpdatePerson(long id, PersonDto person)
         {
-            throw new NotImplementedException();
+            return await _employeeRepository.TryUpdatePerson(id, GetInternalPerson(person));
         }
 
-        public Task<bool> TryDeletePerson(long id)
+        /// <inheritdoc />
+        public async Task<bool> TryDeletePerson(long id)
         {
-            throw new NotImplementedException();
+            return await _employeeRepository.TryDeletePerson(id);
+        }
+
+        private PersonDto GetExternalPerson(Person person)
+        {
+            return new PersonDto
+            {
+                Id = person.Id,
+                Name = person.Name,
+                DisplayName = person.DisplayName,
+                Skills = person.Skills.Select(skill => GetExternaSkill(skill)).ToList(),
+            };
+        }
+
+        private Person GetInternalPerson(PersonDto personDto)
+        {
+            return new Person
+            {
+                Name = personDto.Name,
+                DisplayName= personDto.DisplayName,
+                Skills = personDto.Skills.Select(skill => GetInternalSkill(skill)).ToList(),
+            };
+        }
+
+        private SkillDto GetExternaSkill(Skill skill)
+        {
+            return new SkillDto
+            {
+                Name = skill.Name,
+                Level = skill.Level,
+            };
+        }
+
+        private Skill GetInternalSkill(SkillDto skillDto)
+        {
+            return new Skill
+            {
+                Name = skillDto.Name,
+                Level = skillDto.Level,
+            };
         }
 
         #endregion Methods
