@@ -60,4 +60,4 @@ Skill (Навык)
 - 500 – серверная ошибка (например, при обработке данных).
 
 ## Дополнительная информация
-Логи раполагаются в C:\Users\{CurrentUser}\AppData\Roaming\HallOfFame\logs
+Логи раполагаются в `C:\Users\{CurrentUser}\AppData\Roaming\HallOfFame\logs`
