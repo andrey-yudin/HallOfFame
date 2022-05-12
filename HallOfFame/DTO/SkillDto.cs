@@ -1,8 +1,8 @@
 ﻿namespace HallOfFame.DTO
 {
-    using System.ComponentModel.DataAnnotations;
-
     using Newtonsoft.Json;
+
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
     /// Skill data transfer object

@@ -47,11 +47,6 @@
         /// <inheritdoc />
         public async Task<bool> TryCreatePerson(PersonDto person)
         {
-            if (person == null)
-            {
-                return false;
-            }
-
             return await _employeeRepository.TryCreatePerson(GetInternalPerson(person));
         }
 

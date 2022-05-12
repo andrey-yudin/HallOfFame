@@ -1,9 +1,12 @@
 ﻿namespace HallOfFame.Controllers
 {
-    using Microsoft.AspNetCore.Mvc;
-
     using HallOfFame.DTO;
     using HallOfFame.Services;
+
+    using NLog;
+
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
 
     [Produces("application/json")]
     [ApiController]
@@ -12,6 +15,7 @@
     {
         #region Fields
 
+        private readonly ILogger _logger;
         private readonly IEmployeeService _employeeService;
 
         #endregion Fields
@@ -20,6 +24,7 @@
 
         public EmployeeController(IEmployeeService employeeService)
         {
+            _logger = LogManager.GetCurrentClassLogger();
             _employeeService = employeeService;
         }
 
@@ -36,6 +41,8 @@
                    : NotFound();
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("api/v1/person/{id}")]
         public async Task<ActionResult<PersonDto>> GetPerson(long id)
         {
@@ -46,9 +53,17 @@
                    : NotFound();
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("api/v1/person")]
         public async Task<ActionResult> CreatePerson(PersonDto person)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.Warn($"Bad request: {Request}");
+                return BadRequest();
+            }
+
             if (!await _employeeService.TryCreatePerson(person))
             {
                 return BadRequest();
@@ -57,9 +72,17 @@
             return Ok();
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut("api/v1/person/{id}")]
         public async Task<ActionResult> UpdatePerson(long id, PersonDto person)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.Warn($"Bad request: {Request}");
+                return BadRequest();
+            }
+
             if (!await _employeeService.TryUpdatePerson(id, person))
             {
                 return BadRequest();
@@ -68,6 +91,8 @@
             return Ok();
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("api/v1/person/{id}")]
         public async Task<ActionResult> Delete(long id)
         {

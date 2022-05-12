@@ -3,16 +3,19 @@
     using HallOfFame.DataBase.DataAccess;
     using HallOfFame.Models;
 
+    using Microsoft.EntityFrameworkCore;
+
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Microsoft.EntityFrameworkCore;
+    using NLog;
 
     public class EmployeeRepository : IEmployeeRepository
     {
         #region Fields
 
+        private readonly ILogger _logger;
         private readonly EmployeeContext _employeeContext;
 
         #endregion Fields
@@ -21,6 +24,7 @@
 
         public EmployeeRepository(EmployeeContext employeeContext)
         {
+            _logger = LogManager.GetCurrentClassLogger();
             _employeeContext = employeeContext;
         }
 
@@ -40,10 +44,14 @@
         {
             try
             {
+                _logger.Trace(() => $"Try to get person with id {id}");
+
                 var person = await _employeeContext.Persons.FindAsync(id);
 
                 if (person == null)
                 {
+                    _logger.Warn($"Can`t find person with id {id}");
+
                     return (false, null);
                 }
 
@@ -51,10 +59,13 @@
                     .Collection(p => p.Skills)
                     .Load();
 
+                _logger.Trace(() => $"Person {person} created successfully");
+
                 return (true, person);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.Error($"Have an error while getting person with id {id}, exception message: {ex}");
                 return (false, null);
             }
         }
@@ -64,12 +75,15 @@
         {
             try
             {
+                _logger.Trace(() => $"Try to create person {person}");
+
                 await _employeeContext.AddAsync(person);
                 await _employeeContext.SaveChangesAsync();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.Error($"Have an error while creating person {person}, exception message: {ex}");
                 return false;
             }
         }
@@ -79,6 +93,8 @@
         {
             try
             {
+                _logger.Trace(() => $"Try to update person {person}, id {id}");
+
                 var personExists = await _employeeContext.Persons.AnyAsync(p => p.Id == id);
 
                 if (personExists)
@@ -94,13 +110,18 @@
 
                     await _employeeContext.SaveChangesAsync();
 
+                    _logger.Trace(() => $"Person with id {id} upated");
+
                     return true;
                 }
 
+                _logger.Warn($"Can`t update person with id {id}");
+
                 return false;
             }
-            catch 
+            catch (Exception ex)
             {
+                _logger.Error($"Have an error while updating person {person} with id {id}, exception message: {ex}");
                 return false;
             }
         }
@@ -110,20 +131,26 @@
         {
             try
             {
+                _logger.Trace(() => $"Try to delete person with id {id}");
+
                 var person = await _employeeContext.Persons.FirstOrDefaultAsync(person => person.Id == id);
 
                 if (person == null)
                 {
+                    _logger.Warn(() => $"No person with id {id}");
                     return false;
                 }
 
                 _employeeContext.Persons.Remove(person);
                 await _employeeContext.SaveChangesAsync();
 
+                _logger.Trace(() => $"Person with id {id} deleted successfully");
+
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.Error($"Have an error while deleting person with id {id}, exception message: {ex}");
                 return false;
             }
         }
