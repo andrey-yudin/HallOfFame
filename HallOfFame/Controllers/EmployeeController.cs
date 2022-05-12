@@ -10,7 +10,7 @@
 
     [Produces("application/json")]
     [ApiController]
-    [Route("")]
+    [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
         #region Fields

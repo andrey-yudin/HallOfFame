@@ -59,7 +59,7 @@
                     .Collection(p => p.Skills)
                     .Load();
 
-                _logger.Trace(() => $"Person {person} created successfully");
+                _logger.Trace(() => $"Person: id {person.Id} created successfully");
 
                 return (true, person);
             }
@@ -75,7 +75,7 @@
         {
             try
             {
-                _logger.Trace(() => $"Try to create person {person}");
+                _logger.Trace(() => $"Try to create person: id {person.Id}");
 
                 await _employeeContext.AddAsync(person);
                 await _employeeContext.SaveChangesAsync();
@@ -83,7 +83,7 @@
             }
             catch (Exception ex)
             {
-                _logger.Error($"Have an error while creating person {person}, exception message: {ex}");
+                _logger.Error($"Have an error while creating person: id {person.Id}, exception message: {ex}");
                 return false;
             }
         }
@@ -93,7 +93,7 @@
         {
             try
             {
-                _logger.Trace(() => $"Try to update person {person}, id {id}");
+                _logger.Trace(() => $"Try to update person: id {id}");
 
                 var personExists = await _employeeContext.Persons.AnyAsync(p => p.Id == id);
 
@@ -121,7 +121,7 @@
             }
             catch (Exception ex)
             {
-                _logger.Error($"Have an error while updating person {person} with id {id}, exception message: {ex}");
+                _logger.Error($"Have an error while updating person: id {person.Id} with id {id}, exception message: {ex}");
                 return false;
             }
         }
